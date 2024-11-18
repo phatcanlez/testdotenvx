@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { LoginReqBody, RegisterReqBody } from './users.request';
-import { UserDto, UserRole } from './user.dto';
+import { UserDto, UserRole, UserVerifyStatus } from './user.dto';
 import { JwtUtilsService } from 'src/utils/jwt/jwtUtils.service';
 import { ConfigService } from '@nestjs/config';
 import { TokenDto, TokenType } from 'src/utils/jwt/jwt.dto';
@@ -38,6 +38,16 @@ export class UsersService {
     });
   }
 
+  signEmailToken({ user_id, role }: { user_id: string; role: UserRole }) {
+    return this.jwtUtilsService.signToken({
+      payload: { user_id, role },
+      options: {
+        expiresIn: this.configService.get<string>('JWT_EMAIL_TOKEN_EXPIRES_IN'),
+      },
+      secret: this.configService.get<string>('JWT_EMAIL_TOKEN_SECRET'),
+    });
+  }
+
   async checkEmail(email: string) {
     const result = await this.databaseService.Users.findUnique({
       where: {
@@ -45,6 +55,31 @@ export class UsersService {
       },
     });
     return result;
+  }
+
+  async checkEmailVerifyToken({
+    email_verify_token,
+    user_id,
+  }: {
+    email_verify_token: string;
+    user_id: string;
+  }) {
+    const result = await this.databaseService.Users.findFirst({
+      where: {
+        id: user_id,
+        email_verify_token,
+      },
+    });
+    return Boolean(result);
+  }
+
+  async checkVerifyStatus(user_id: string) {
+    const result = await this.databaseService.Users.findUnique({
+      where: {
+        id: user_id,
+      },
+    });
+    return result.verify_status;
   }
 
   async users() {
@@ -57,15 +92,24 @@ export class UsersService {
     const result = await this.databaseService.Users.create({
       data: new UserDto({ name, email, password }),
     });
+    const email_verify_token = await this.signEmailToken({
+      user_id: result.id,
+      role: UserRole.USER,
+    });
     const user = await this.databaseService.Users.update({
       where: {
         id: result.id,
       },
       data: {
         username: `user${result.id}`,
+        email_verify_token,
         updated_at: new Date(),
       },
     });
+    //send email verify token to user email
+    console.log(
+      `http://localhost:3000/users/email-verify?email_verify_token=${email_verify_token}`,
+    );
     const [access_token, refresh_token] = await Promise.all([
       this.signAccessToken({ user_id: user.id, role: user.role }),
       this.signRefreshToken({ user_id: user.id, role: user.role }),
@@ -106,5 +150,25 @@ export class UsersService {
     });
     //create access token and refresh token then return
     return { access_token, refresh_token };
+  }
+
+  async emailVerify({
+    email_verify_token,
+    user_id,
+  }: {
+    email_verify_token: string;
+    user_id: string;
+  }) {
+    await this.databaseService.Users.update({
+      where: {
+        id: user_id,
+        email_verify_token,
+      },
+      data: {
+        verify_status: UserVerifyStatus.VERIFIED,
+        email_verify_token: '',
+        updated_at: new Date(),
+      },
+    });
   }
 }

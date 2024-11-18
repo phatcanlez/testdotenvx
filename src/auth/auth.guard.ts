@@ -4,12 +4,13 @@ import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
 import { UserRole } from 'src/users/user.dto';
 import { ROLES_KEY } from 'src/utils/decorators/role.decorator';
-import { JwtPayload } from 'src/utils/jwt/jwt.interface';
 import { JwtUtilsService } from 'src/utils/jwt/jwtUtils.service';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class AccessTokenAuthGuard implements CanActivate {
         token,
         secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
       });
-      request['decoded_authorization'] = decoded_authorization;
+      (request as Request).decoded_authorization = decoded_authorization;
       return true;
     } catch (e) {
       throw new UnauthorizedException(e.message);
@@ -49,7 +50,7 @@ export class RoleAuthGuard implements CanActivate {
       return true;
     }
     const request = context.switchToHttp().getRequest();
-    const user = request['decoded_authorization'] as JwtPayload;
+    const user = (request as Request).decoded_authorization;
     if (!user) {
       throw new UnauthorizedException('User authentication required');
     }
@@ -58,5 +59,29 @@ export class RoleAuthGuard implements CanActivate {
       throw new ForbiddenException("You don't have permission to access");
     }
     return isAllowed;
+  }
+}
+
+export class EmailVerifyTokenAuthGuard implements CanActivate {
+  constructor(
+    private readonly jwtUtilsService: JwtUtilsService,
+    private readonly configService: ConfigService,
+  ) {}
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const token = request.query.email_verify_token;
+    if (!token) {
+      throw new UnauthorizedException('User authentication required');
+    }
+    try {
+      const decoded_email_verify = this.jwtUtilsService.verifyToken({
+        token,
+        secret: this.configService.get<string>('JWT_EMAIL_TOKEN_SECRET'),
+      });
+      (request as Request).decoded_email_verify = decoded_email_verify;
+      return true;
+    } catch (e) {
+      throw new UnprocessableEntityException(e.message);
+    }
   }
 }
