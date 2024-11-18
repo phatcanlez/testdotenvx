@@ -10,7 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RegisterReqBody } from './users.request';
+import { LoginReqBody, RegisterReqBody } from './users.request';
 import {
   AccessTokenAuthGuard,
   EmailVerifyTokenAuthGuard,
@@ -19,12 +19,49 @@ import {
 import { Roles } from 'src/utils/decorators/role.decorator';
 import { UserRole, UserVerifyStatus } from './user.dto';
 import { Request } from 'express';
+import { ApiBody, ApiHeader, ApiQuery, ApiResponse } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('register')
+  @ApiBody({
+    type: RegisterReqBody,
+    required: true,
+    description: 'Register body',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Register successfully',
+    schema: {
+      example: {
+        message: 'Register successfully',
+        result: {
+          access_token: 'access_token',
+          refresh_token: 'refresh_token',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Email is already existed',
+    schema: {
+      example: {
+        message: 'Email is already existed',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    schema: {
+      example: {
+        message: 'Bad request',
+      },
+    },
+  })
   async register(@Body(new ValidationPipe()) body: RegisterReqBody) {
     const { email } = body;
     const isExistedEmail = await this.usersService.checkEmail(email);
@@ -41,7 +78,43 @@ export class UsersController {
   }
 
   @Post('login')
-  async login(@Body(new ValidationPipe()) body: RegisterReqBody) {
+  @ApiBody({
+    type: LoginReqBody,
+    required: true,
+    description: 'Login body',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successfully',
+    schema: {
+      example: {
+        message: 'Login successfully',
+        result: {
+          access_token: 'access_token',
+          refresh_token: 'refresh_token',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    schema: {
+      example: {
+        message: 'Bad request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Email or password is incorrect',
+    schema: {
+      example: {
+        message: 'Email or password is incorrect',
+      },
+    },
+  })
+  async login(@Body(new ValidationPipe()) body: LoginReqBody) {
     const tokens = await this.usersService.login(body);
     if (!tokens) {
       throw new UnauthorizedException('Email or password is incorrect');
@@ -53,6 +126,23 @@ export class UsersController {
   }
 
   @Get('email-verify')
+  @ApiQuery({
+    name: 'email_verify_token',
+    required: true,
+    type: String,
+    description: 'Email verify token',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Email verified successfully | Email is already verified | User is banned | Email verify token is invalid or expired',
+    schema: {
+      example: {
+        message:
+          'Email verified successfully | Email is already verified | User is banned | Email verify token is invalid or expired',
+      },
+    },
+  })
   @UseGuards(EmailVerifyTokenAuthGuard)
   async emailVerify(
     @Query('email_verify_token') email_verify_token: string,
@@ -83,11 +173,28 @@ export class UsersController {
       user_id,
     });
     return {
-      message: 'Email is verified',
+      message: 'Email verified successfully',
     };
   }
 
   @Get()
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'Bearer token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Get users successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
   @Roles(UserRole.ADMIN)
   @UseGuards(AccessTokenAuthGuard, RoleAuthGuard)
   async users() {

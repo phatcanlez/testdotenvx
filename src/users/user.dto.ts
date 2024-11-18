@@ -4,8 +4,8 @@ interface UserType {
   name: string;
   email: string;
   password: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
   email_verify_token?: string;
   forgot_password_token?: string;
   verify_status?: UserVerifyStatus;
@@ -18,8 +18,8 @@ export class UserDto {
   name: string;
   email: string;
   password: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
   email_verify_token: string;
   forgot_password_token: string;
   verify_status: UserVerifyStatus;
@@ -29,8 +29,8 @@ export class UserDto {
     this.name = userData.name;
     this.email = userData.email;
     this.password = userData.password;
-    this.createdAt = userData.createdAt || new Date();
-    this.updatedAt = userData.updatedAt || new Date();
+    this.created_at = userData.created_at || new Date();
+    this.updated_at = userData.updated_at || new Date();
     this.email_verify_token = userData.email_verify_token || '';
     this.forgot_password_token = userData.forgot_password_token || '';
     this.verify_status = userData.verify_status || UserVerifyStatus.UNVERIFIED;

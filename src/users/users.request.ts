@@ -1,5 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
   IsString,
@@ -8,15 +8,36 @@ import {
 import { Match } from 'src/utils/decorators/match.decorator';
 
 export class RegisterReqBody {
-  @IsAlphanumeric()
+  @ApiProperty({
+    name: 'name',
+    description: 'Name of the user',
+    required: true,
+    type: String,
+    example: 'John Doe',
+  })
+  @IsString()
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty({
+    name: 'email',
+    description: 'Email of the user',
+    required: true,
+    type: String,
+    example: 'abcxyz@123.co',
+  })
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty({
+    name: 'password',
+    description: 'Password of the user',
+    required: true,
+    type: String,
+    example: 'Abc123!@#',
+  })
   @IsString()
   @IsNotEmpty()
   @IsStrongPassword({
@@ -28,6 +49,13 @@ export class RegisterReqBody {
   })
   password: string;
 
+  @ApiProperty({
+    name: 'confirm_password',
+    description: 'Confirm password of the user',
+    required: true,
+    type: String,
+    example: 'Abc123!@#',
+  })
   @IsString()
   @IsNotEmpty()
   @IsStrongPassword({
@@ -42,11 +70,25 @@ export class RegisterReqBody {
 }
 
 export class LoginReqBody {
+  @ApiProperty({
+    name: 'email',
+    description: 'Email of the user',
+    required: true,
+    type: String,
+    example: 'abcxyz@123.co',
+  })
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty({
+    name: 'password',
+    description: 'Password of the user',
+    required: true,
+    type: String,
+    example: 'Abc123!@#',
+  })
   @IsString()
   @IsNotEmpty()
   password: string;

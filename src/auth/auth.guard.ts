@@ -62,6 +62,7 @@ export class RoleAuthGuard implements CanActivate {
   }
 }
 
+@Injectable()
 export class EmailVerifyTokenAuthGuard implements CanActivate {
   constructor(
     private readonly jwtUtilsService: JwtUtilsService,
