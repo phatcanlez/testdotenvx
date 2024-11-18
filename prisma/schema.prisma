@@ -13,10 +13,19 @@ model users {
   name                  String
   email                 String   @unique
   password              String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
   email_verify_token    String
   forgot_password_token String
   verify_status         Int
   role                  Int
+}
+
+model tokens {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String   @db.ObjectId
+  token     String
+  token_type Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }

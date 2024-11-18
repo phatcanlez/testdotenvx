@@ -4,10 +4,14 @@ import {
   Get,
   Post,
   UnauthorizedException,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { RegisterReqBody } from './users.request';
+import { AccessTokenAuthGuard, RoleAuthGuard } from 'src/auth/auth.guard';
+import { Roles } from 'src/utils/decorators/role.decorator';
+import { UserRole } from './user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -25,28 +29,30 @@ export class UsersController {
     const result = await this.usersService.register(body);
     return {
       message: 'Register successfully',
-      data: result,
+      result,
     };
   }
 
   @Post('login')
   async login(@Body(new ValidationPipe()) body: RegisterReqBody) {
-    const user = await this.usersService.login(body);
-    if (!user) {
+    const tokens = await this.usersService.login(body);
+    if (!tokens) {
       throw new UnauthorizedException('Email or password is incorrect');
     }
     return {
       message: 'Login successfully',
-      data: user,
+      result: tokens,
     };
   }
 
   @Get()
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenAuthGuard, RoleAuthGuard)
   async users() {
     const result = await this.usersService.users();
     return {
       message: 'Get users successfully',
-      data: result,
+      result,
     };
   }
 }

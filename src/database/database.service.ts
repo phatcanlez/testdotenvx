@@ -11,4 +11,8 @@ export class DatabaseService {
   get Users() {
     return this.prisma.users;
   }
+
+  get Tokens() {
+    return this.prisma.tokens;
+  }
 }
