@@ -56,7 +56,7 @@ export class UsersService {
     });
   }
 
-  async checkEmail(email: string) {
+  async checkEmail(email: string): Promise<UserDto> {
     const result = await this.databaseService.Users.findUnique({
       where: {
         email,
@@ -72,7 +72,7 @@ export class UsersService {
     email_verify_token: string;
     user_id: string;
   }) {
-    const result = await this.databaseService.Users.findFirst({
+    const result = await this.databaseService.Users.findUnique({
       where: {
         id: user_id,
         email_verify_token,
@@ -90,12 +90,10 @@ export class UsersService {
   }) {
     const result = await this.databaseService.Tokens.findFirst({
       where: {
-        user_id,
         token: refresh_token,
+        user_id,
       },
     });
-    console.log('result', result);
-
     if (!result) {
       return null;
     }
@@ -111,15 +109,17 @@ export class UsersService {
     return result.verify_status;
   }
 
-  async users() {
+  async users(): Promise<UserDto[]> {
     const result = await this.databaseService.Users.findMany();
     return result;
   }
 
   async register(data: RegisterReqBody) {
-    const { name, email, password } = data;
     const result = await this.databaseService.Users.create({
-      data: new UserDto({ name, email, password }),
+      data: {
+        ...new UserDto(data),
+        username: `user${new Date().getTime()}`,
+      },
     });
     const email_verify_token = await this.signEmailToken({
       user_id: result.id,
