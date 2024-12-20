@@ -7,29 +7,140 @@ datasource db {
   url      = env("DB_URL")
 }
 
-model tokens {
+model address {
+  id                                       String  @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  country                                  String  @db.VarChar(255)
+  province                                 String  @db.VarChar(255)
+  district                                 String  @db.VarChar(255)
+  ward                                     String  @db.VarChar(255)
+  address_detail                           String  @db.VarChar(255)
+  created_at                               String  @db.VarChar(255)
+  updated_at                               String  @db.VarChar(255)
+  order_order_receiver_address_idToaddress order[] @relation("order_receiver_address_idToaddress")
+  order_order_sender_address_idToaddress   order[] @relation("order_sender_address_idToaddress")
+}
+
+model fish {
+  id         String       @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  weight     Float        @db.Float
+  length     Float        @db.Float
+  breed      String       @db.VarChar(255)
+  Note       String       @db.VarChar(255)
+  media_url  String?      @db.VarChar(255)
+  created_at DateTime     @db.Date
+  updated_at DateTime     @db.Date
+  status     Int
+  order_fish order_fish[]
+}
+
+model order {
+  id                                         String         @id @db.Char(15)
+  customer_id                                String         @db.Char(36)
+  sender_name                                String         @db.VarChar(255)
+  sender_phone                               String         @db.VarChar(255)
+  sender_address_id                          String         @db.Char(36)
+  receiver_name                              String         @db.VarChar(255)
+  receiver_phone                             String         @db.VarChar(255)
+  receiver_address_id                        String         @db.Char(36)
+  created_at                                 DateTime       @db.Date
+  updated_at                                 DateTime       @db.Date
+  user                                       user           @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_customer_id_User_id")
+  address_order_receiver_address_idToaddress address        @relation("order_receiver_address_idToaddress", fields: [receiver_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_receiver_address_id_Address_id")
+  address_order_sender_address_idToaddress   address        @relation("order_sender_address_idToaddress", fields: [sender_address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_sender_address_id_Address_id")
+  order_fish                                 order_fish[]
+  order_status                               order_status[]
+
+  @@index([customer_id], map: "FK_Order_customer_id_User_id")
+  @@index([receiver_address_id], map: "FK_Order_receiver_address_id_Address_id")
+  @@index([sender_address_id], map: "FK_Order_sender_address_id_Address_id")
+}
+
+model order_fish {
+  id       String @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  fish_id  String @db.Char(36)
+  order_id String @db.Char(15)
+  fish     fish   @relation(fields: [fish_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_Fish_fish_id_Fish_id")
+  order    order  @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_Fish_order_id_Order_id")
+
+  @@index([fish_id], map: "FK_Order_Fish_fish_id_Fish_id")
+  @@index([order_id], map: "FK_Order_Fish_order_id_Order_id")
+}
+
+model order_status {
+  id                 String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  order_id           String   @db.Char(15)
+  team_id            String   @db.Char(36)
+  status_description Int
+  media_url          String?  @db.VarChar(255)
+  created_at         DateTime @db.Date
+  updated_at         DateTime @db.Date
+  order              order    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_Status_order_id_Order_id")
+  team               team     @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_Status_team_id_Team_id")
+
+  @@index([order_id], map: "FK_Order_Status_order_id_Order_id")
+  @@index([team_id], map: "FK_Order_Status_team_id_Team_id")
+}
+
+model post {
+  id         String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  manager_id String   @db.Char(36)
+  post_name  String   @db.VarChar(255)
+  country    String   @db.VarChar(255)
+  status     Int
+  created_at DateTime @db.Date
+  updated_at DateTime @db.Date
+  team       team[]
+}
+
+model team {
+  id           String         @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  post_id      String?        @db.Char(36)
+  status       Int
+  created_at   DateTime       @db.Date
+  updated_at   DateTime       @db.Date
+  order_status order_status[]
+  post         post?          @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Team_post_id_Post_id")
+  user_team    user_team[]
+
+  @@index([post_id], map: "FK_Team_post_id_Post_id")
+}
+
+model token {
   id         String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
   user_id    String   @db.Char(36)
   token      String   @db.Text
   token_type Int
   created_at DateTime @db.DateTime(0)
   updated_at DateTime @db.DateTime(0)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_tokens_user_id_users_id")
+  user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Token_user_id_User_id")
 
-  @@index([user_id], map: "FK_tokens_user_id_users_id")
+  @@index([user_id], map: "FK_Token_user_id_User_id")
 }
 
-model users {
-  id                    String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
-  username              String   @unique(map: "username") @db.VarChar(255)
-  name                  String   @db.VarChar(255)
-  email                 String   @unique(map: "email") @db.VarChar(255)
-  password              String   @db.VarChar(255)
-  created_at            DateTime @db.DateTime(0)
-  updated_at            DateTime @db.DateTime(0)
-  email_verify_token    String?  @db.VarChar(255)
-  forgot_password_token String?  @db.VarChar(255)
-  verify_status         Int
-  role                  Int
-  tokens                tokens[]
+model user {
+  id         String      @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  name       String      @db.VarChar(255)
+  phone      String      @db.VarChar(255)
+  password   String      @db.VarChar(255)
+  created_at DateTime    @db.DateTime(0)
+  updated_at DateTime    @db.DateTime(0)
+  role       Int
+  status     Int
+  order      order[]
+  token      token[]
+  user_team  user_team[]
+}
+
+model user_team {
+  id               String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  team_id          String?  @db.Char(36)
+  user_id          String   @db.Char(36)
+  status           Int
+  leave_at         DateTime @db.Date
+  added_to_team_at DateTime @db.Date
+  team             team?    @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_Team_team_id_Team_id")
+  user             user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_Team_user_id_User_id")
+
+  @@index([team_id], map: "FK_User_Team_team_id_Team_id")
+  @@index([user_id], map: "FK_User_Team_user_id_User_id")
 }

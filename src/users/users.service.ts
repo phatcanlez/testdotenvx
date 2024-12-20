@@ -8,6 +8,8 @@ import { TokenDto, TokenType } from 'src/utils/jwt/jwt.dto';
 
 @Injectable()
 export class UsersService {
+  async;
+
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly jwtUtilsService: JwtUtilsService,
