@@ -1,23 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { VnpayService } from './vnpay/vnpay.service';
-import { VnpayController } from './vnpay/vnpay.controller';
 import { VnpayModule } from './vnpay/vnpay.module';
-import { TestdotenvController } from './testdotenv/testdotenv.controller';
+import { WebsocketModule } from './websocket/websocket.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
     VnpayModule,
+    WebsocketModule,
+    ChatModule,
   ],
-  controllers: [AppController, VnpayController, TestdotenvController],
-  providers: [AppService, VnpayService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

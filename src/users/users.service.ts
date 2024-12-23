@@ -5,17 +5,15 @@
 // import { JwtUtilsService } from 'src/utils/jwt/jwtUtils.service';
 // import { ConfigService } from '@nestjs/config';
 // import { TokenDto, TokenType } from 'src/utils/jwt/jwt.dto';
-
+//
 // @Injectable()
 // export class UsersService {
-//   async;
-
 //   constructor(
 //     private readonly databaseService: DatabaseService,
 //     private readonly jwtUtilsService: JwtUtilsService,
 //     private readonly configService: ConfigService,
 //   ) {}
-
+//
 //   signAccessToken({ user_id, role }: { user_id: string; role: UserRole }) {
 //     return this.jwtUtilsService.signToken({
 //       payload: { user_id, role },
@@ -27,7 +25,7 @@
 //       secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
 //     });
 //   }
-
+//
 //   signRefreshToken({
 //     user_id,
 //     role,
@@ -47,7 +45,7 @@
 //       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
 //     });
 //   }
-
+//
 //   signEmailToken({ user_id, role }: { user_id: string; role: UserRole }) {
 //     return this.jwtUtilsService.signToken({
 //       payload: { user_id, role },
@@ -57,16 +55,16 @@
 //       secret: this.configService.get<string>('JWT_EMAIL_TOKEN_SECRET'),
 //     });
 //   }
-
+//
 //   async checkEmail(email: string): Promise<UserDto> {
-//     const result = await this.databaseService.Users.findUnique({
+//     const result = await this.databaseService.User.findUnique({
 //       where: {
 //         email,
 //       },
 //     });
 //     return result;
 //   }
-
+//
 //   async checkEmailVerifyToken({
 //     email_verify_token,
 //     user_id,
@@ -74,7 +72,7 @@
 //     email_verify_token: string;
 //     user_id: string;
 //   }) {
-//     const result = await this.databaseService.Users.findUnique({
+//     const result = await this.databaseService.User.findUnique({
 //       where: {
 //         id: user_id,
 //         email_verify_token,
@@ -82,7 +80,7 @@
 //     });
 //     return Boolean(result);
 //   }
-
+//
 //   async checkRefreshToken({
 //     user_id,
 //     refresh_token,
@@ -90,7 +88,7 @@
 //     user_id: string;
 //     refresh_token: string;
 //   }) {
-//     const result = await this.databaseService.Tokens.findFirst({
+//     const result = await this.databaseService.Token.findFirst({
 //       where: {
 //         token: refresh_token,
 //         user_id,
@@ -101,23 +99,23 @@
 //     }
 //     return result.id;
 //   }
-
+//
 //   async checkVerifyStatus(user_id: string) {
-//     const result = await this.databaseService.Users.findUnique({
+//     const result = await this.databaseService.User.findUnique({
 //       where: {
 //         id: user_id,
 //       },
 //     });
 //     return result.verify_status;
 //   }
-
+//
 //   async users(): Promise<UserDto[]> {
-//     const result = await this.databaseService.Users.findMany();
+//     const result = await this.databaseService.User.findMany();
 //     return result;
 //   }
-
+//
 //   async register(data: RegisterReqBody) {
-//     const result = await this.databaseService.Users.create({
+//     const result = await this.databaseService.User.create({
 //       data: {
 //         ...new UserDto(data),
 //         username: `user${new Date().getTime()}`,
@@ -127,7 +125,7 @@
 //       user_id: result.id,
 //       role: UserRole.USER,
 //     });
-//     const user = await this.databaseService.Users.update({
+//     const user = await this.databaseService.User.update({
 //       where: {
 //         id: result.id,
 //       },
@@ -145,7 +143,7 @@
 //       this.signAccessToken({ user_id: user.id, role: user.role }),
 //       this.signRefreshToken({ user_id: user.id, role: user.role }),
 //     ]);
-//     await this.databaseService.Tokens.create({
+//     await this.databaseService.Token.create({
 //       data: new TokenDto({
 //         token: refresh_token,
 //         token_type: TokenType.REFRESH_TOKEN,
@@ -155,10 +153,10 @@
 //     //create access token and refresh token then return
 //     return { access_token, refresh_token };
 //   }
-
+//
 //   async login(data: LoginReqBody) {
 //     const { email, password } = data;
-//     const user = await this.databaseService.Users.findFirst({
+//     const user = await this.databaseService.User.findFirst({
 //       where: {
 //         email,
 //         password,
@@ -171,8 +169,8 @@
 //       this.signAccessToken({ user_id: user.id, role: user.role }),
 //       this.signRefreshToken({ user_id: user.id, role: user.role }),
 //     ]);
-
-//     await this.databaseService.Tokens.create({
+//
+//     await this.databaseService.Token.create({
 //       data: new TokenDto({
 //         token: refresh_token,
 //         token_type: TokenType.REFRESH_TOKEN,
@@ -182,7 +180,7 @@
 //     //create access token and refresh token then return
 //     return { access_token, refresh_token };
 //   }
-
+//
 //   async emailVerify({
 //     email_verify_token,
 //     user_id,
@@ -190,7 +188,7 @@
 //     email_verify_token: string;
 //     user_id: string;
 //   }) {
-//     await this.databaseService.Users.update({
+//     await this.databaseService.User.update({
 //       where: {
 //         id: user_id,
 //         email_verify_token,
@@ -202,15 +200,15 @@
 //       },
 //     });
 //   }
-
+//
 //   async logout(refresh_token_id: string) {
-//     await this.databaseService.Tokens.delete({
+//     await this.databaseService.Token.delete({
 //       where: {
 //         id: refresh_token_id,
 //       },
 //     });
 //   }
-
+//
 //   async refreshToken({
 //     refresh_token_id,
 //     user_id,
@@ -219,7 +217,7 @@
 //     user_id: string;
 //   }) {
 //     //get old refresh token expire time
-//     const old_refresh_token = await this.databaseService.Tokens.findUnique({
+//     const old_refresh_token = await this.databaseService.Token.findUnique({
 //       where: {
 //         id: refresh_token_id,
 //       },
@@ -239,7 +237,7 @@
 //         expiresIn: newExpiresIn,
 //       }),
 //     ]);
-//     await this.databaseService.Tokens.update({
+//     await this.databaseService.Token.update({
 //       where: {
 //         id: refresh_token_id,
 //       },
@@ -248,7 +246,7 @@
 //         updated_at: new Date(),
 //       },
 //     });
-
+//
 //     return { access_token, refresh_token };
 //   }
 // }

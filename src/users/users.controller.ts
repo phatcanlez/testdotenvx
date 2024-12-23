@@ -26,11 +26,11 @@
 // import { UserRole, UserVerifyStatus } from './user.dto';
 // import { Request } from 'express';
 // import { ApiBody, ApiHeader, ApiQuery, ApiResponse } from '@nestjs/swagger';
-
+//
 // @Controller('users')
 // export class UsersController {
 //   constructor(private readonly usersService: UsersService) {}
-
+//
 //   @Post('register')
 //   @ApiBody({
 //     type: RegisterReqBody,
@@ -82,7 +82,7 @@
 //       result,
 //     };
 //   }
-
+//
 //   @Post('login')
 //   @ApiBody({
 //     type: LoginReqBody,
@@ -130,7 +130,7 @@
 //       result: tokens,
 //     };
 //   }
-
+//
 //   @Get('email-verify')
 //   @ApiQuery({
 //     name: 'email_verify_token',
@@ -182,7 +182,7 @@
 //       message: 'Email verified successfully',
 //     };
 //   }
-
+//
 //   @Get()
 //   @ApiHeader({
 //     name: 'Authorization',
@@ -210,7 +210,7 @@
 //       result,
 //     };
 //   }
-
+//
 //   @Post('logout')
 //   @UseGuards(AccessTokenAuthGuard, RefreshTokenAuthGuard)
 //   async logout(@Body() body: LogoutReqBody, @Req() req: Request) {
@@ -228,7 +228,7 @@
 //       message: 'Logout successfully',
 //     };
 //   }
-
+//
 //   @Post('refresh-token')
 //   @UseGuards(RefreshTokenAuthGuard)
 //   async refreshToken(@Body() body: RefreshTokenReqBody, @Req() req: Request) {

@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as querystring from 'qs';
 import { ConfigService } from '@nestjs/config';
+import { WebsocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class VnpayService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private websocketGateway: WebsocketGateway,
+  ) {}
 
   createPaymentUrl(orderId: string, amount: number, orderInfo: string) {
     const date = new Date();
@@ -60,7 +64,19 @@ export class VnpayService {
     const signData = querystring.stringify(sortedParams, { encode: false });
     const signed = this.generateHMAC(secretKey, signData);
 
-    return secureHash === signed;
+    const isValid = secureHash === signed;
+
+    if (isValid) {
+      // Gửi thông báo qua WebSocket khi thanh toán thành công
+      this.websocketGateway.sendPaymentNotification({
+        status: 'success',
+        orderId: vnpParams['vnp_TxnRef'],
+        amount: vnpParams['vnp_Amount'],
+        paymentTime: vnpParams['vnp_PayDate'],
+      });
+    }
+
+    return isValid;
   }
 
   private sortObject(obj: any) {

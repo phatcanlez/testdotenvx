@@ -132,14 +132,14 @@ model user {
 }
 
 model user_team {
-  id               String   @id @default(dbgenerated("(uuid())")) @db.Char(36)
-  team_id          String?  @db.Char(36)
-  user_id          String   @db.Char(36)
+  id               String    @id @default(dbgenerated("(uuid())")) @db.Char(36)
+  team_id          String    @db.Char(36)
+  user_id          String    @db.Char(36)
   status           Int
-  leave_at         DateTime @db.Date
-  added_to_team_at DateTime @db.Date
-  team             team?    @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_Team_team_id_Team_id")
-  user             user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_Team_user_id_User_id")
+  leave_at         DateTime? @db.Date
+  added_to_team_at DateTime  @db.Date
+  team             team      @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_User_Team_team_id_Team_id")
+  user             user      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_User_Team_user_id_User_id")
 
   @@index([team_id], map: "FK_User_Team_team_id_Team_id")
   @@index([user_id], map: "FK_User_Team_user_id_User_id")
