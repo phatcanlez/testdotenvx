@@ -8,14 +8,21 @@ import { ChatService } from './chat.service';
 import { JoinChatDto } from './dto/join-chat.dto';
 import { Server } from 'socket.io';
 import { SendMessDto } from './dto/send-mess.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@WebSocketGateway()
+@ApiTags('chat')
+@WebSocketGateway({
+  cors: {
+    origin: '*', // Cấu hình CORS cho phép kết nối từ client
+  },
+})
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
   constructor(private readonly chatService: ChatService) {}
 
+  @ApiOperation({ summary: 'Handle chat message' })
   @SubscribeMessage('chatMessage')
   chatMessage(@MessageBody() sendMessDto: SendMessDto) {
     console.log(sendMessDto);
@@ -35,6 +42,7 @@ export class ChatGateway {
     return id;
   }
 
+  @ApiOperation({ summary: 'Join chat' })
   @SubscribeMessage('join')
   join(@MessageBody() joinChatDto: JoinChatDto) {
     console.log('join chat at BE:  ' + joinChatDto.username);
