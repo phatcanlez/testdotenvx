@@ -11,11 +11,7 @@ import { SendMessDto } from './dto/send-mess.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('chat')
-@WebSocketGateway({
-  cors: {
-    origin: '*', // Cấu hình CORS cho phép kết nối từ client
-  },
-})
+@WebSocketGateway()
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
